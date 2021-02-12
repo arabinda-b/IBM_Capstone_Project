@@ -1,0 +1,215 @@
+%\documentclass[a4paper,12pt]{article}
+%\documentclass[column,aps,prc,superscriptaddress,preprintnumbers,floatfix,nofootinbib]{revtex4}
+\documentclass[12pt]{article}
+\usepackage
+[
+        a4paper,% other options: a3paper, a5paper, etc
+        left=3cm,
+        right=2.5cm,
+        top=3cm,
+        bottom=3cm,
+        % use vmargin=2cm to make vertical margins equal to 2cm.
+        % us  hmargin=3cm to make horizontal margins equal to 3cm.
+        % use margin=3cm to make all margins  equal to 3cm.
+]
+{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{harpoon}
+\usepackage{MnSymbol}
+\usepackage{appendix}
+\usepackage{color}
+\usepackage{lineno}
+\usepackage{setspace}
+\usepackage{epsfig,graphics}
+\usepackage{graphicx}% Include figure files
+\usepackage{hyperref}
+
+\begin{document}
+\title{Coursera Capstone - Predicting Car Accident Severity}
+\author{Arabinda Behera}
+\date{\today}
+\maketitle
+
+%====================================================
+\section{Introduction}
+\subsection{Background}
+The World Health Organization describes the road traffic system as the most complex and the most dangerous system with which people have to deal every day. Millions of people around the world die in road accidents each year. The affected people and their family go through mental stress and face financial problems. Road accidents also puts pressure on police and insurance agencies. They have to be prepared and be efficient in dealing with unexpected cases. The study of road accidents is very crucial and some models for predicting accident severity would be very beneficial for drivers, police, insurance and other agencies to deal with accidents efficiently. It would also be helpful for the awareness of general public on the important causes and patterns and may help prevent accidents to some level.
+\subsection{Problem Statement}
+The numbers and the severity of the accidents can depend on several factors like location, time, traffic conditions, weather conditions, state of the vehicle, driver's physical and mental state, etc. Predicting the probability and severity of accidents using simple statistical models is difficult. A huge amount of open access data is available on road accidents from different governments around the world. The important question is can this vast data be used to predict accident severity? 
+
+This project aims on developing machine learning models using available and labeled data to predict severity of road accidents.
+
+
+%====================================================
+\section{Data}
+\subsection{Data Source}
+The data for this project is taken from Kaggle (\verb|https://www.kaggle.com/|).
+%The link is given below :\\
+ %\verb|https://www.kaggle.com/tsiaras/uk-road-safety-accidents-and-vehicles|
+The data originally comes from the Open Data website of UK government (\verb|https://data.gov.uk/|)\\
+published by the Department of Transport. The dataset contains detailed information on the road accidents from different places in the country. The dataset contains two  csv files :
+\begin{itemize}
+\item  \verb|Accident_Information.csv|: each row represents a unique traffic accident (identified by the \verb|Accident_Index| column), featuring various properties related to the accident as columns. Date range: 2005-2017
+\item  \verb|Vehicle_Information.csv|: each row represents the involvement of a unique vehicle in a unique traffic accident, featuring various vehicle and passenger properties as columns. Date range: 2004-2016
+\end{itemize}
+The project is implemented in Jupyter notebook using python libraries - numpy, pandas, sklearn, matplotlib and seaborn.
+\subsection{Data merging}
+The ".csv" data files are loaded in the Jupyter notebook using pandas dataframes. The two data frames were then joined using "inner-join" on the column ``\verb|Accident_Index|". The top five rows of the merged dataframe obtained using the head() command of pandas is shown in Figure~\ref{fig1}.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\linewidth]{"./figs/fig1"}
+\caption{First 5 rows in the dataframe}
+\label{fig1}
+\end{figure}
+\subsection{Data reduction}
+There are 2,058,408 rows in the dataframe which is quite huge for the analysis. So, the number of rows are reduced by selecting a 30$\%$ sample of the data with weights.  The columns which are most important features for the analysis are retained and others are dropped. The final dataset now consists of 617,522 rows and 25 columns.
+
+%====================================================
+\section{Methodology}
+\subsection{Exploratory Data Analysis}
+The dataframe is explored to make several plots for data visualisatiion. Some of the important ones are discussed below. 
+The target column is ``\verb|Accident_Severity|". The value counts of the three values in this columns are shown in Figure~\ref{fig2}.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig2"}
+\caption{Accident severity counts}
+\label{fig2}
+\end{figure}
+The null values in the dataframe are checked for different columns. The list of columns and number of null values are shown in Figure~\ref{fig3}.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig3"}
+\caption{Null values in different features}
+\label{fig3}
+\end{figure}
+The distribution of the ``\verb|Age_of_Vehicle|" column with years as units is shown in Figure~\ref{fig4}.. The minimum vehicle age is 1 year, maximum age is 104 years and the median age is 7 years.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig4"}
+\caption{Age of vehicles in years}
+\label{fig4}
+\end{figure}
+The distribution of the ``\verb|Engine_Capacity_.CC.|" column with ``c.c" as units is shown in Figure~\ref{fig5}. The minimum engine capacity is 2 c.c, maximum is 91,000 c.c and the median is  1,598 c.c
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig5"}
+\caption{Engine capacity in c.c}
+\label{fig5}
+\end{figure}
+The heatmap of the correlation matrix from the dataframe is shown in Figure~\ref{fig6}.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig6"}
+\caption{Correlation matrix of features - heatmap}
+\label{fig6}
+\end{figure}
+The distribution of the ``\verb|Number_of_Vehicles|" column is shown in Figure~\ref{fig7}.The minimum number of vehicles involved in accident is 1, maximum is 67 and the median is 2.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig7"}
+\caption{Number of vehicles}
+\label{fig7}
+\end{figure}
+The distribution of the ``\verb|Number_of_Casualties|" column is shown in Figure~\ref{fig8}. The minimum number of casualties in accident is 1, maximum is 87 and the median is 1.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig8"}
+\caption{Number of casualties}
+\label{fig8}
+\end{figure}
+The distribution of the accidents at different times over the day is shown in Figure~\ref{fig9}. Minimum number of accidents occured during early morning from 12 am to 5 am. Maximum number of accidents occured in the evening around 5 pm.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig9"}
+\caption{Accidents over different times in a day}
+\label{fig9}
+\end{figure}
+ 
+
+\clearpage
+\subsection{Multi-class to Two-Class Transformation}
+There are three classes in the column ``\verb|Accident_Severity|" namely 'Slight', 'Serious' and 'Fatal'. To make the classification problem simpler I am combining the  'Serious' and 'Fatal' into one class. So, basically one new binary column ``\verb|Accident_Severity_Slight|" is created using one-hot encoding with value 1 for 'Slight' and '0' for 'Severe'.
+The number of casualties distributions by accident severity is shown in Figure~\ref{fig10}. 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig10"}
+\caption{Number of casualties distributions by accident severity}
+\label{fig10}
+\end{figure}
+The number of vehicles distributions by accident severity is shown in Figure~\ref{fig11}. 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\linewidth]{"./figs/fig11"}
+\caption{Number of vehicles distributions by accident severity}
+\label{fig11}
+\end{figure}
+\subsection{Feature-Target Split}
+The columns are split into features and target. The column ``\verb|Accident_Severity_Slight|" is selected as the target and the rest are selected and feature set.
+\subsection{Pipelines}
+Pipelines are created to do the following tasks :
+\begin{itemize}
+\item Addressing the null values in the columns
+\item Applying transformation on some features
+\item Applying scaling on features.
+\item Creating One-hot encoding of the features.
+\end{itemize}
+Some of these are discussed below.
+\subsubsection*{Filling null values}
+The null values in the features are filled in the pipelines using the SimpleImputer() function with different strategies. The strategies used for some of the features are given below :
+\begin{itemize}
+\item Speed Limit - '\verb|most_frequent|'
+\item Age of Vehicle - '\verb|median|'
+\item Engine Capacity - '\verb|most_frequent|'
+\end{itemize}
+\subsubsection*{Feature Transformations}
+Different transformations are applied on some of the features to improve their efficiency for the classification. Some of them are given below :
+\begin{itemize}
+\item The feature ``Time'' is grouped into different classes - [Night, Early Morning, Morning, Midday, Afternoon, Evening, Late Evening]
+\item In the feature ``Make" of the car, the companies with less than 2000 counts are grouped under one make - 'Other'.
+\item The feature ``\verb|Engine_Capacity_.CC.|" is spread over a very broad range. So, the range is rebinned into 7 bins.
+\end{itemize}
+\subsubsection*{One-hot Encoding}
+One-hot encodings are applied on the categorical features using the OneHotEncoder() function in the pipelines.
+
+%====================================================
+\subsection{Modeling}
+The dataset is split into training samples (\verb|X_train| and \verb|y_train| ) and testing samples (\verb|X_test| and \verb|y_test|) using the \verb|train_test_split()| function in the ratio 3:1. The feature sets from training and testing samples (\verb|X_train| and \verb|X_test|) are passed through the pipelines for transformation.
+
+Three machine learning models are used for classification of accident severity - Logistic Regression, Random Forest and Boosting Gradient. For the Logistic Regression Classifier the hyperparameter \verb|class_weight="balanced"|. For Random Forest Classifier the hyperparameters \verb|n_estimators=100| and \verb|n_jobs=3|. For the Gradient Boosting Classifier the hyperparameter \verb|random_state=0|. The three Classifiers were trained separately using the \verb|X_train| and \verb|y_train|. The Gradient Boosting Classifier took the longest time to train. After training, the Classifiers were applied on \verb|X_test| to get the predictions \verb|y_pred|.
+
+%====================================================
+\section{Results}
+The models were finally evaluated using three evaluation metrics \\- \verb|jaccard_similarity_score|, \verb|f1_score| and \verb|roc_auc_score|. The results are presented in Table~\ref{Tab1}.
+\begin{center}
+\begin{table}[h!]
+\begin{tabular}{|c|c|c|c|}
+\hline
+Metric & Logistic Regression & Gradient Boosting & Random Forest \\
+\hline
+Jaccard Similarity Score & 0.66 & 0.67 & 0.80 \\
+\hline
+F1 Score & 0.70 & 0.76 & 0.84 \\
+\hline
+ROC-AUC Score & 0.71 & 0.71 & 0.86 \\
+\hline
+\end{tabular}
+\caption{Evaluation metrics table for the Classifiers}
+\label{Tab1}
+\end{table}
+\end{center}
+So from the evaluation of the classifiers it is concluded that the best model in this project is the Random Forest Classifier with 86$\%$ \verb|roc_auc_score|.
+
+%====================================================
+\section{ Discussion}
+The three models are able to do some good prediction of the accident severity. The Random Forest model has the best performance of 86$\%$ accuracy which is pretty good. There is scope of improvement for the performance. Only 30$\%$ of the dataset is used in the project. The full dataset can give improvement in the performance. A more detailed hyperparameter search for the models using cross-validation can further improve the performance. More advanced models like the Artificial Neural Networks can significantly boost the performance.
+
+%====================================================
+\section{Conclusion}
+In summary, Machine learning classification models were constructed in this project to analyze the open data of car accidents provided by the UK government. Data was loaded using pandas dataframes and steps were taken for data cleaning and data reduction. Important features for the classification problem were selected and a new dataframe was created with them. In the data exploration and visualisation stage several plots were made to understand the features in the data. Several pipelines were created for handling null values in the features and also do feature transformation. The features and target set were then split into training and testing samples in the ratio 3:1. The features train and test sets were passed through the pipelines to apply the transformations. Three classification models - Logistic Regression, Gradient Boosting and Random Forest were trained on the training sample. The trained models were then applied on the test sample to make the predictions. Finally, the models were evaluated using three metrics - Jaccard Similarity Score, F1 Score and RAC-AUC score. From the evaluation scores it is found that the Random model has the best performs with highest RAC-AUC score of 86$\%$. So, we have developed a model that can predict accident severity with 86$\%$ accuracy. There is scope of improvement for the performance.
+
+\maketitle
+\end{document}
